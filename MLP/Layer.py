@@ -8,6 +8,7 @@ def cross_entropy_loss(y, t):
 
         batch_size = y.shape[0]
         return -np.sum(t * np.log(y + c)) / batch_size
+
 def softmax(a):
     C = np.max(a)
     exp_a = np.exp(a - C)
@@ -19,7 +20,6 @@ def softmax(a):
         sum_exp_a = sum_exp_a.reshape(sum_exp_a.shape[0], 1)
         y = exp_a / sum_exp_a
     return y
-
     
 class MulLayer:
     def __init__(self, param=None):
@@ -34,7 +34,6 @@ class MulLayer:
     def backward(self, dout):
         self.grad = np.dot(self.x.T, dout)
         return np.dot(dout, self.param.T)
-
 
 class AddLayer:
     def __init__(self, param=None):
@@ -80,17 +79,3 @@ class ReluLayer:
         self.out[self.out > 0] = 1
         return self.out * dout 
 
-
-class MSELayer:
-    def __init__(self, y):
-        self.x = None
-        self.y = y
-        self.loss = None
-    
-    def forward(self, x):
-        self.x = x
-        self.loss = np.square(x - self.y).mean()
-        return self.loss
-
-    def backward(self):
-        return self.x - self.y

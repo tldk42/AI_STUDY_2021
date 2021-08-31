@@ -24,7 +24,7 @@ one_hot[np.arange(y_test.shape[0]), y_test] = 1
 y_test = one_hot
 
 net  = Logistic()
-w, b = net.SoftmaxGD(x_train,y_train)
+w, b = net.SGD(x_train,y_train, early_stopping=True)
 
 pred = x_test.dot(w) + b
 pred = net.softmax(pred)

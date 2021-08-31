@@ -4,6 +4,8 @@ class Logistic:
     def __init__(self):
         self.W = np.random.randn(784, 10) / np.sqrt(784/2)    # 'he' weight initialize
         self.b = 0
+        self._step = 0
+        self._loss = float('inf')
 
     def softmax(self,a):
         C = np.max(a)
@@ -37,7 +39,20 @@ class Logistic:
         batch_size = y.shape[0]
         return -np.sum(t * np.log(y + c)) / batch_size
 
-    def SoftmaxGD(self, x, y, learning_rate=0.01, epoch=100, batch_size=100):
+    def early_stop(self, loss ,patience=10, verbose=1):
+        if self._loss < loss:
+            self._step += 1
+            if self._step > patience:
+                if verbose:
+                    print('Training process early stopped..!')
+                return True
+        else:
+            self._step = 0
+            self._loss = loss
+
+        return False
+
+    def SGD(self, x, y, learning_rate=0.01, epoch=100, batch_size=100, early_stopping=False):
         
         w, b = self.W, self.b
         iters_per_epochs = max(x.shape[0] / batch_size , 1)
@@ -51,16 +66,22 @@ class Logistic:
             pred = self.softmax(z)
             dz = (pred - y_batch) / batch_size
             dw = np.dot(x_batch.T, dz)
-            db = dz * 1.0
+            db = dz * 1.0   
             w -= dw * learning_rate
             b -= (db * learning_rate).mean(0)
 
+            
+
             if epochs % iters_per_epochs == 0:
-                print('[epoch', int(epochs / iters_per_epochs)+1,']')
                 pred = self.softmax(x.dot(w) + b)
                 acc = (pred.argmax(1) == y.argmax(1)).mean()
-                print("ACC : ", acc)
                 err = self.cross_entropy_loss(pred, y)
+                if early_stopping is True:
+                    #   3 epoch 연속으로 loss가 증가하면 break
+                    if self.early_stop(self.cross_entropy_loss(pred,y),patience=3):
+                        break
+                print('[epoch', int(epochs / iters_per_epochs)+1,']')
+                print("ACC : ", acc)
                 print("ERR : ", err)
 
         return w, b

@@ -10,6 +10,8 @@ class Model:
         self.num = 0
         self.loss = None
         self.pred = None
+        self._step = 0
+        self._loss = float('inf')
     
     def addLayer(self, layer, activation = False, input_size=None, name=None, init=None):
         if name is None:
@@ -22,7 +24,7 @@ class Model:
         if not activation:
             if isinstance(layer, AddLayer):
                 self.params[name] = np.zeros(input_size)
-            elif init is 'he':
+            elif init == 'he':
                 n = np.sqrt(6 / input_size[0])
                 self.params[name] = np.random.uniform(-n, n, input_size)
             else:
@@ -36,7 +38,20 @@ class Model:
         self.loss = self.layers[self.keys[-1]].forward(x, y)
         self.pred = softmax(x)
 
-    def train(self, x_train, y_train, epoch, learning_rate, batch_size):
+    def early_stop(self, loss ,patience=10, verbose=1):
+        if self._loss < loss:
+            self._step += 1
+            if self._step > patience:
+                if verbose:
+                    print('Training process early stopped..!')
+                return True
+        else:
+            self._step = 0
+            self._loss = loss
+
+        return False
+
+    def train(self, x_train, y_train, epoch, learning_rate, batch_size, early_stopping=False):
         for epochs in range(epoch):
             batch_mask = np.random.choice(x_train.shape[0], batch_size)
             x = x_train[batch_mask]
@@ -51,8 +66,11 @@ class Model:
                     self.grads[key] = self.layers[key].grad
                     self.params[key] -= learning_rate * self.grads[key]
                 
-            if epoch % (epoch / 10) == 0:
-                print("ACC on epoch %d : " % epochs, (self.pred.argmax(1) == y.argmax(1)).mean())
-                print("LOSS on epoch %d : " % epochs, self.loss)
+            if epochs % (epoch / 10) == 0:
+                if early_stopping :
+                    if self.early_stop(self.loss, patience=100):
+                        break
+                print("ACC on epoch %d : " % (epochs / 10), (self.pred.argmax(1) == y.argmax(1)).mean())
+                print("LOSS on epoch %d : " % (epochs / 10), self.loss)
 
         return self.params
