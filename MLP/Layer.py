@@ -1,5 +1,16 @@
 import numpy as np
 
+"""
+    functions and class (layer) for MLP model
+    
+    cross entropy loss
+    softmax
+    * layer
+    + layer
+    softmax layer 
+    relu layer
+"""
+
 def cross_entropy_loss(y, t):
         c = 1e-7
         if y.ndim == 1:

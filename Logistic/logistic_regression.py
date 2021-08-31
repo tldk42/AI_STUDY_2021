@@ -2,7 +2,7 @@ import numpy as np
 
 class Logistic:
     def __init__(self):
-        self.W = np.random.randn(784, 10) / np.sqrt(784/2)    # 'he' weight initialize
+        self.W = np.random.randn(784, 10) * np.sqrt(2/784)    # 'he' weight initialize
         self.b = 0
         self._step = 0
         self._loss = float('inf')
