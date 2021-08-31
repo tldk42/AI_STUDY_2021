@@ -2,7 +2,9 @@ from Layer import *
 import numpy as np
 
 class Model:
-    def __init__(self):
+    def __init__(self, layer):
+        self.layer = layer
+
         self.params = {}
         self.grads = {}
         self.keys = []
@@ -12,6 +14,27 @@ class Model:
         self.pred = None
         self._step = 0
         self._loss = float('inf')
+
+
+        for idx in range(len(layer)+1):
+            
+            #   if hidden layer is with in input layer  (relu)
+            if idx == 0:
+                self.addLayer(MulLayer(), input_size=(784, layer[0]), name='w1',init='he')
+                self.addLayer(AddLayer(), input_size=layer[0], name='b1')
+                self.addLayer(ReluLayer(), activation=True, name='ReLu1')
+
+            #   if hidden layer is with in ouput layer  (softmax)
+            elif idx == len(layer):
+                self.addLayer(MulLayer(), input_size=(layer[idx-1], 10), name='w'+str(idx+1),init='he')
+                self.addLayer(AddLayer(), input_size= 10, name='b'+str(idx+1))
+                self.addLayer(SoftmaxLayer(), activation=True, name='softmax')
+
+            #   else
+            else:
+                self.addLayer(MulLayer(), input_size=(layer[idx-1], layer[idx]), name = 'w'+str(idx+1),init='he')
+                self.addLayer(AddLayer(), input_size=layer[idx], name = 'b'+str(idx+1))
+                self.addLayer(ReluLayer(), activation=True, name = 'Relu'+str(idx+1))
     
     def addLayer(self, layer, activation = False, input_size=None, name=None, init=None):
         if name is None:
@@ -78,4 +101,12 @@ class Model:
                 print("LOSS on epoch", int(epochs / iters_per_epochs)+1, ": ", self.loss)
 
         return self.params
-  
+    def test(self, x, y):
+            
+        for idx in range(x.shape[0]):
+            
+            self.predict(x,y)
+
+ 
+                
+            print(self.loss)

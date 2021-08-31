@@ -29,12 +29,12 @@ num_classes = y_train.shape[1]
     
 """
 
-Layer_num = [100, 50]       # hidden layer
-Layer_len = len(Layer_num)  
+Layer = [100, 50]       # hidden layer
+Layer_len = len(Layer)  
 
-model = Model()
+model = Model(layer=Layer)
 # middle(hidden layer)
-for idx in range(Layer_len+1):
+"""for idx in range(Layer_len+1):
 
     #   if hidden layer is with in input layer  (relu)
     if idx == 0:
@@ -52,7 +52,7 @@ for idx in range(Layer_len+1):
     else:
         model.addLayer(Layer.MulLayer(), input_size=(Layer_num[idx-1], Layer_num[idx]), name = 'w'+str(idx+1),init='he')
         model.addLayer(Layer.AddLayer(), input_size=Layer_num[idx], name = 'b'+str(idx+1))
-        model.addLayer(Layer.ReluLayer(), activation=True, name = 'Relu'+str(idx+1))
+        model.addLayer(Layer.ReluLayer(), activation=True, name = 'Relu'+str(idx+1))"""
 
 
 #   start train
