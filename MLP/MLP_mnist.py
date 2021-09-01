@@ -29,34 +29,13 @@ num_classes = y_train.shape[1]
     
 """
 
-Layer = [100, 50]       # hidden layer
+Layer = [100, 50, 30, 50]       # hidden layer
 Layer_len = len(Layer)  
 
 model = Model(layer=Layer)
-# middle(hidden layer)
-"""for idx in range(Layer_len+1):
-
-    #   if hidden layer is with in input layer  (relu)
-    if idx == 0:
-        model.addLayer(Layer.MulLayer(), input_size=(x_train.shape[1], Layer_num[0]), name='w1',init='he')
-        model.addLayer(Layer.AddLayer(), input_size=Layer_num[0], name='b1')
-        model.addLayer(Layer.ReluLayer(), activation=True, name='ReLu1')
-
-    #   if hidden layer is with in ouput layer  (softmax)
-    elif idx == Layer_len:
-        model.addLayer(Layer.MulLayer(), input_size=(Layer_num[idx-1], y_train.shape[1]), name='w'+str(idx+1),init='he')
-        model.addLayer(Layer.AddLayer(), input_size= y_train.shape[1], name='b'+str(idx+1))
-        model.addLayer(Layer.SoftmaxLayer(), activation=True, name='softmax')
-
-    #   else
-    else:
-        model.addLayer(Layer.MulLayer(), input_size=(Layer_num[idx-1], Layer_num[idx]), name = 'w'+str(idx+1),init='he')
-        model.addLayer(Layer.AddLayer(), input_size=Layer_num[idx], name = 'b'+str(idx+1))
-        model.addLayer(Layer.ReluLayer(), activation=True, name = 'Relu'+str(idx+1))"""
-
 
 #   start train
-params = model.train(x_train, y_train, epoch=100, learning_rate=0.01,batch_size=500, early_stopping=True, patience=5)
+params = model.train(x_train, y_train, epoch=100, learning_rate=0.01,batch_size=500, early_stopping=True, patience=10)
 
 #   train 된 w,b pickle로 저장 
 if Layer_len == 1:
@@ -72,4 +51,4 @@ else:
     with open('four_layered_params.pkl','wb') as f:
         pickle.dump(params,f)
 
-# 저장된 params 로 test dataset train 결과 
+# 저장된 params 로 test dataset train 결과 -> test_mnist.py

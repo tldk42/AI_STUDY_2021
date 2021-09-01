@@ -1,6 +1,7 @@
 from Layer import *
 import numpy as np
 
+# for train model 
 class Model:
     def __init__(self, layer):
         self.layer = layer
@@ -110,3 +111,55 @@ class Model:
  
                 
             print(self.loss)
+
+# for test
+class Test:
+    def __init__(self, params, layer):
+        self.params = params
+        self.grads = {}
+        self.keys = []
+        self.layers = {}
+        self.num = 0
+        self.loss = None
+        self.pred = None
+        self.layer = layer
+
+        for idx in range(len(layer)+1):
+            
+            #   if hidden layer is with in input layer  (relu)
+            if idx == 0:
+                self.addLayer(MulLayer(), input_size=(784, layer[0]), name='w1',init='he')
+                self.addLayer(AddLayer(), input_size=layer[0], name='b1')
+                self.addLayer(ReluLayer(), activation=True, name='ReLu1')
+
+            #   if hidden layer is with in ouput layer  (softmax)
+            elif idx == len(layer):
+                self.addLayer(MulLayer(), input_size=(layer[idx-1], 10), name='w'+str(idx+1),init='he')
+                self.addLayer(AddLayer(), input_size= 10, name='b'+str(idx+1))
+                self.addLayer(SoftmaxLayer(), activation=True, name='softmax')
+
+            #   else
+            else:
+                self.addLayer(MulLayer(), input_size=(layer[idx-1], layer[idx]), name = 'w'+str(idx+1),init='he')
+                self.addLayer(AddLayer(), input_size=layer[idx], name = 'b'+str(idx+1))
+                self.addLayer(ReluLayer(), activation=True, name = 'Relu'+str(idx+1))
+
+    def addLayer(self, layer, activation = False, input_size=None, name=None, init=None):
+        if name is None:
+            name = str(self.num)
+        
+        self.keys.append(name)
+        self.num += 1
+        self.layers[name] = layer
+
+        if not activation:
+            self.layers[name].param = self.params[name]
+
+    def predict(self ,x ,y):
+        for i in range(len(self.keys) - 1):
+            key = self.keys[i]
+            x = self.layers[key].forward(x)
+        self.loss = self.layers[self.keys[-1]].forward(x, y)
+        self.pred = softmax(x)
+        acc = (self.pred.argmax(1) == y.argmax(1)).mean()
+        return acc, self.loss
